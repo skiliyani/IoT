@@ -5,8 +5,8 @@
 #define HCSR04_PIN_TRIG 2
 #define HCSR04_PIN_ECHO 0
 
-const char* ssid = "SAYANI_IOT";
-const char* password = "00001111";
+const char* ssid = "SAYANI_JIO";
+const char* password = "00011101";
 const char* mqtt_server = "192.168.8.10";
 
 WiFiClient espClient;

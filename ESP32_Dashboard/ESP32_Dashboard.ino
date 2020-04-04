@@ -2,8 +2,8 @@
 #include <PubSubClient.h>
 #include <U8g2lib.h>
 
-const char* ssid     = "SAYANI_IOT";
-const char* password = "00001111";
+const char* ssid     = "SAYANI_JIO";
+const char* password = "00011101";
 const char* mqtt_server = "192.168.8.10";
 
 WiFiClient wifiClient;
