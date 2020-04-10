@@ -61,16 +61,16 @@ void reconnect() {
 void setup() {
   pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
   Serial.begin(115200);
+  setup_wifi();
   client.setServer(mqtt_server, 1883);
 }
 
 void loop() {
 
-  setup_wifi();
-
   if (!client.connected()) {
     reconnect();
   }
+  client.loop();
     
   int hcsr04Dist = hcsr04.ping_cm();
   delay(10);
@@ -79,12 +79,7 @@ void loop() {
   Serial.print("Publish message: ");
   Serial.println(msg);
   client.publish("waterLevelTopic", msg);
-  client.disconnect();
-  Serial.println("Disconnected MQTT");
 
-  delay(500);
-  WiFi.disconnect();
-  Serial.println("Disconnected WiFi");
-
-  delay(1000 * 60 * 5); // five minutes
+  Serial.print("Gonna deep sleep! Good night :)");
+  ESP.deepSleep(6e8); // 10 mins
 }
