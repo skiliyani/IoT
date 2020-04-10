@@ -79,6 +79,7 @@ void loop() {
   Serial.print("Publish message: ");
   Serial.println(msg);
   client.publish("waterLevelTopic", msg);
+  client.disconnect();
 
   Serial.print("Gonna deep sleep! Good night :)");
   ESP.deepSleep(6e8); // 10 mins
