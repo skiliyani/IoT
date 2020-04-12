@@ -66,6 +66,8 @@ void setup() {
 
 void loop() {
 
+  WiFi.forceSleepWake();
+  
   setup_wifi();
 
   if (!client.connected()) {
@@ -85,6 +87,8 @@ void loop() {
   delay(500);
   WiFi.disconnect();
   Serial.println("Disconnected WiFi");
+
+  WiFi.forceSleepBegin();
 
   delay(1000 * 60 * 5); // five minutes
 }
