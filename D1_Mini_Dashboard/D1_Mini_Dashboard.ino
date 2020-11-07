@@ -1,23 +1,14 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-#include <U8x8lib.h>
 
-#ifdef U8X8_HAVE_HW_SPI
-#include <SPI.h>
-#endif
-
-const char* ssid     = "SAYANI_IOT";
-const char* password = "00001111";
+const char* ssid     = "SAYANI_WIFI";
+const char* password = "00011101";
 const char* mqtt_server = "192.168.8.10";
 
 WiFiClient wifiClient;
 PubSubClient client(wifiClient);
 
-U8X8_SSD1306_128X32_UNIVISION_SW_I2C u8x8(/* clock=*/ SCL, /* data=*/ SDA, /* reset=*/ U8X8_PIN_NONE); 
-
-char msg[50];
-char msg_time[50];
-unsigned long time_ = 0;
+unsigned long last_msg_time_ms = 0;
 
 void setup_wifi() {
 
@@ -26,9 +17,6 @@ void setup_wifi() {
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
-
-  u8x8.setFont(u8x8_font_torussansbold8_r);
-  u8x8.drawString(0,0, "WiFi...");
 
   WiFi.begin(ssid, password);
 
@@ -43,13 +31,11 @@ void setup_wifi() {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-
-  u8x8.drawString(0,0, "WiFi connected");
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
 
-  time_ = millis();
+  last_msg_time_ms = millis();
   
   String distance_str = "";
   
@@ -63,24 +49,16 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.println();
 
   int distance_int_cm = distance_str.toInt();
-  int levelPercentage = 100 - ((distance_int_cm - 15) / 80.0 * 100.0);
-  levelPercentage = max(min(levelPercentage, 100),0);
+  int level_p = 100 - ((distance_int_cm - 15) / 80.0 * 100.0);
+  level_p = max(min(level_p, 100),0);
   Serial.print("Water Level: ");
-  Serial.print(levelPercentage);
+  Serial.print(level_p);
   Serial.print("%");
   Serial.println();
-
-  snprintf (msg, 50, "%ld%%", levelPercentage);
-  
-  u8x8.clear();
-  u8x8.setFont(u8x8_font_torussansbold8_r);
-  u8x8.draw2x2String(0,0, msg);
 }
 
 void setup() {
   Serial.begin(115200);
-  u8x8.begin();
-  u8x8.setPowerSave(0);
   setup_wifi();
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
@@ -97,9 +75,6 @@ void reconnect() {
     if (client.connect(clientId.c_str())) {
       Serial.println("connected");
       client.subscribe("waterLevelTopic");
-
-      u8x8.clear();
-      u8x8.drawString(0,0, "Waiting...");
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -115,9 +90,5 @@ void loop() {
     reconnect();
   }
   client.loop();
-  
-  snprintf (msg_time, 50, "%ld sec ago", (millis() - time_) /  1000);
-  u8x8.drawString(0,3, msg_time); 
-  
   delay(1000);
 }

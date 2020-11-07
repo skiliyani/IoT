@@ -10,7 +10,7 @@ const char* password = "00011101";
 const char* mqtt_server = "192.168.8.10";
 
 WiFiClient espClient;
-PubSubClient client(espClient);
+PubSubClient mqttClient(espClient);
 NewPing hcsr04(HCSR04_PIN_TRIG,HCSR04_PIN_ECHO);
 
 char msg[50];
@@ -38,19 +38,30 @@ void setup_wifi() {
   Serial.println(WiFi.localIP());
 }
 
+void disconnect_wifi() {
+  delay(10);
+
+  Serial.println();
+  Serial.print("Disconnecting from ");
+  Serial.println(ssid);
+  
+  WiFi.disconnect(true);
+  Serial.println("WiFi dsconnected");
+}
+
 void reconnect() {
   // Loop until we're reconnected
-  while (!client.connected()) {
+  while (!mqttClient.connected()) {
     Serial.print("Attempting MQTT connection...");
     // Create a random client ID
     String clientId = "ESP8266Client-";
     clientId += String(random(0xffff), HEX);
     // Attempt to connect
-    if (client.connect(clientId.c_str())) {
+    if (mqttClient.connect(clientId.c_str())) {
       Serial.println("connected");
     } else {
       Serial.print("failed, rc=");
-      Serial.print(client.state());
+      Serial.print(mqttClient.state());
       Serial.println(" try again in 5 seconds");
       // Wait 5 seconds before retrying
       delay(5000);
@@ -61,16 +72,18 @@ void reconnect() {
 void setup() {
   pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
   Serial.begin(115200);
-  setup_wifi();
-  client.setServer(mqtt_server, 1883);
+  //setup_wifi();
+  mqttClient.setServer(mqtt_server, 1883);
 }
 
 void loop() {
 
-  if (!client.connected()) {
+  setup_wifi();
+
+  if (!mqttClient.connected()) {
     reconnect();
   }
-  client.loop();
+  //mqttClient.loop();
   
   int hcsr04Dist = hcsr04.ping_cm();
   delay(10);
@@ -78,7 +91,9 @@ void loop() {
   Serial.print(F("Distance: ")); Serial.print(hcsr04Dist); Serial.println(F("[cm]"));
   Serial.print("Publish message: ");
   Serial.println(msg);
-  client.publish("waterLevelTopic", msg);
+  mqttClient.publish("waterLevelTopic", msg);
+
+  disconnect_wifi();
 
   delay(1000 * 60); // one minute
 }
