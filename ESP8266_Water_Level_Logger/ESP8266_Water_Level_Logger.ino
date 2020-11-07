@@ -95,5 +95,6 @@ void loop() {
 
   disconnect_wifi();
 
-  delay(1000 * 60); // one minute
+
+  delay(1000 * 60 * 5); // five minutes
 }
