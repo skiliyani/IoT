@@ -5,9 +5,9 @@
 #define HCSR04_PIN_TRIG 2
 #define HCSR04_PIN_ECHO 0
 
-const char* ssid = "SAYANI_JIO";
+const char* ssid = "SAYANI_WIFI";
 const char* password = "00011101";
-const char* mqtt_server = "192.168.8.10";
+const char* mqtt_server = "192.168.8.11";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -43,8 +43,7 @@ void reconnect() {
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
     // Create a random client ID
-    String clientId = "ESP8266Client-";
-    clientId += String(random(0xffff), HEX);
+    String clientId = "ESP-DL-WL";
     // Attempt to connect
     if (client.connect(clientId.c_str())) {
       Serial.println("connected");
@@ -90,5 +89,5 @@ void loop() {
 
   WiFi.forceSleepBegin();
 
-  delay(1000 * 60 * 5); // five minutes
+  delay(1000 * 60); // 1 minute
 }
