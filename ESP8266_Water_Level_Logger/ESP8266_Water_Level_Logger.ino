@@ -5,9 +5,9 @@
 #define HCSR04_PIN_TRIG 2
 #define HCSR04_PIN_ECHO 0
 
-const char* ssid = "SAYANI_JIO";
+const char* ssid = "SAYANI_WIFI";
 const char* password = "00011101";
-const char* mqtt_server = "192.168.8.10";
+const char* mqtt_server = "192.168.8.11";
 
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
@@ -72,29 +72,25 @@ void reconnect() {
 void setup() {
   pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
   Serial.begin(115200);
-  //setup_wifi();
+  setup_wifi();
   mqttClient.setServer(mqtt_server, 1883);
 }
 
 void loop() {
 
-  setup_wifi();
-
   if (!mqttClient.connected()) {
     reconnect();
   }
-  //mqttClient.loop();
-  
+
+  mqttClient.loop();
+   
   int hcsr04Dist = hcsr04.ping_cm();
   delay(10);
   snprintf (msg, 50, "%ld", hcsr04Dist);
   Serial.print(F("Distance: ")); Serial.print(hcsr04Dist); Serial.println(F("[cm]"));
   Serial.print("Publish message: ");
   Serial.println(msg);
-  mqttClient.publish("waterLevelTopic", msg);
+  mqttClient.publish("home/terrace/tank/water/level", msg);
 
-  disconnect_wifi();
-
-
-  delay(1000 * 60 * 5); // five minutes
+  delay(1000 * 60); // one minute
 }
